@@ -1,0 +1,191 @@
+{
+  "name": "Placement Drive Auto Announcer",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 1
+            }
+          ]
+        }
+      },
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        -272,
+        208
+      ],
+      "id": "4178ca25-a76c-452b-b6de-e6b30690d210"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1oDINQMoCb-hieq4PIfFkR0-Vo-dSjEbIEHsQHJKxMSE/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Placements",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1oDINQMoCb-hieq4PIfFkR0-Vo-dSjEbIEHsQHJKxMSE/edit#gid=0"
+        },
+        "options": {}
+      },
+      "name": "Get Placements",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        -48,
+        208
+      ],
+      "id": "6286a24e-1f18-4bc9-94c0-7af8515e95de",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "iItiSvvZUyHcZanP",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "e5a33119-313c-4f07-8a80-73e48197fe1e",
+              "leftValue": "={{ $json['Status '] }}",
+              "rightValue": "Pending",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "name": "Check Status",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        192,
+        208
+      ],
+      "id": "09513c7d-461b-4d18-8b51-b0ad68b72c33"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://discord.com/api/webhooks/1446179487267033120/vs40W8R7Vg_LExhQ5tgDXfly_kCwvkegYw7_aUQ46aWwPbJny_iL-Z0jITz3QU2xt7RG",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "content",
+              "value": "=🚀 New Placement Drive!\n\nCompany: {{ $json['Company '] }}\nRole: {{ $json['Role '] }}\nCTC: {{ $json['CTC '] }}\nDeadline: {{ $json['Deadline '] }}\nApply Here: {{ $json['Apply link '] }}\n"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Post to Discord",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        432,
+        176
+      ],
+      "id": "eacf33d2-ed1c-4cef-b3ab-936745168ac3"
+    },
+    {
+      "parameters": {
+        "resource": "sheetWithinDocument"
+      },
+      "name": "Update Status",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        656,
+        208
+      ],
+      "id": "e9085d17-9cfe-4e5f-84c5-2e0eb6002092",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "iItiSvvZUyHcZanP",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Placements",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Placements": {
+      "main": [
+        [
+          {
+            "node": "Check Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Status": {
+      "main": [
+        [
+          {
+            "node": "Post to Discord",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post to Discord": {
+      "main": [
+        [
+          {
+            "node": "Update Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a9c28268-5933-4a21-9067-02fec92dac28",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5df2ccf80c5d6000898646050e2dc2ca3b6885022bf4cb4477d1e29441f6eb09"
+  },
+  "id": "M8mjjSHIvwwqRmCC",
+  "tags": []
+}
